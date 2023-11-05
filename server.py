@@ -6,6 +6,7 @@ import numpy as np
 from collections import Counter
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 import pandas as pd
+import io
  
 # Initializing flask app
 app = Flask(__name__)
@@ -81,9 +82,9 @@ def get_features():
     if file.filename == '':
         return 'No selected file'
 
-    # Do something with the file, for instance, save it
-    file.save('temp.csv')
-    df = pd.read_csv('temp.csv')
+    file_contents = file.stream.read()
+    file.stream.seek(0)  # Reset the file cursor
+    df = pd.read_csv(io.StringIO(file_contents.decode('utf-8')))
     print(df)  # This will print the content of the uploaded CSV
 
     return 'File uploaded successfully'
