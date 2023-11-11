@@ -85,7 +85,29 @@ def get_features():
     file_contents = file.stream.read()
     file.stream.seek(0)  # Reset the file cursor
     df = pd.read_csv(io.StringIO(file_contents.decode('utf-8')))
-    print(df)  # This will print the content of the uploaded CSV
+
+    # gets column index of classification
+    col_index = 9
+
+    class_col = df.iloc[:, col_index].values
+
+    df.drop(df.columns[col_index], axis=1, inplace=True)
+
+    # Preprocessing
+
+    label_encoder = LabelEncoder()
+
+    for column in df.select_dtypes(exclude=['number']).columns:
+        df[column] = label_encoder.fit_transform(df[column])
+
+    feature_names_list = df.columns.tolist()
+
+    # Normalization
+
+    min_max_scaler = MinMaxScaler()
+    normalized_data = min_max_scaler.fit_transform(df)
+
+    forward_selection(normalized_data, class_col, feature_names_list)
 
     return 'File uploaded successfully'
 
